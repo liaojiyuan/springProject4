@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+<!--业务bean  -->
+	<bean id="serviceC" class="com.spring.aop.transaction.ServiceC">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<aop:config>
+	<!--切入点声明，选择业务方法  -->
+	<aop:pointcut expression="execution(* com.spring.aop.transaction.ServiceC.*(..))" id="busiService"/>
+	<!--确定通知id（事务通知）和切入点id  -->
+	<aop:advisor advice-ref="txAdvice" pointcut-ref="busiService"/>
+	</aop:config>	
+	<!--事务通知专有标签声明，依赖事务管理器  -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+	<!--用于配置事务属性  -->
+		<tx:attributes>
+			<tx:method name="*"/><!--与实务属性关联的方法名  -->
+		</tx:attributes>
+	</tx:advice>	
+	<!--事务管理器由Spring实现，不同持久层由不同事务管理器  -->
+	<!--JDBC事务管理器  -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!--依赖数据源  -->
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!--配置DataSource  -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/testSpring"/>
+		<property name="username" value="root"/>
+		<property name="password" value="153182"/>
+	</bean>
+	
+</beans>
